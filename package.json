@@ -19,6 +19,7 @@
   "author": "textyly community",
   "license": "Apache-2.0",
   "dependencies": {
+    "crossly.client.preferences.contracts": "file:contracts",
     "express": "^4.19.2"
   },
   "devDependencies": {
