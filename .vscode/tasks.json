@@ -22,6 +22,16 @@
             },
             "problemMatcher": [],
             "detail": "Run the build script using npm."
+        },
+        {
+            "label": "compile:tests",
+            "type": "shell",
+            "command": "npm run compile:tests",
+            "group": "build",
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "detail": "Fast: recompile the unit tests (and imported source) for debugging."
         }
     ]
 }
