@@ -7,7 +7,7 @@
 # Usage:  powershell -ExecutionPolicy Bypass -File .\test-getall.ps1
 
 $ErrorActionPreference = 'Stop'
-$base = 'http://localhost:3000'
+$base = 'http://localhost:5002'
 $serviceDir = $PSScriptRoot
 
 function Test-ServerUp {
