@@ -1,0 +1,33 @@
+{
+  "name": "crossly.client.preferences.service",
+  "version": "0.0.1",
+  "description": "TBD",
+  "main": "dist/app.js",
+  "type": "module",
+  "scripts": {
+    "compile": "tsc --version && tsc",
+    "build": "npm i && npm run compile",
+    "start": "npm run build && node dist/app.js",
+    "compile:tests": "tsc --version && tsc -p tsconfig.test.json",
+    "build:tests": "npm run build && npm run compile:tests",
+    "test": "npm run build:tests && mocha 'dist-tests/tests/unit/**/*.test.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/textyly/crossly.client.preferences.service.git"
+  },
+  "author": "textyly community",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^5.0.0",
+    "@types/express": "^4.17.21",
+    "@types/mocha": "^10.0.8",
+    "@types/node": "^20.0.0",
+    "chai": "^5.1.1",
+    "mocha": "^10.7.3",
+    "typescript": "^5.6.2"
+  }
+}

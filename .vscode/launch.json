@@ -1,0 +1,63 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "debug",
+            "program": "${workspaceFolder}/dist/app.js",
+            "runtimeArgs": [
+                "--enable-source-maps"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ],
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "../src/*": "${workspaceFolder}/src/*"
+            },
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
+            "preLaunchTask": "build"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "debug tests",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
+            "runtimeArgs": [
+                "--enable-source-maps"
+            ],
+            "args": [
+                "--timeout",
+                "30000",
+                "${workspaceFolder}/dist-tests/tests/unit/**/*.test.js"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist-tests/**/*.js"
+            ],
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "../src/*": "${workspaceFolder}/src/*",
+                "../tests/*": "${workspaceFolder}/tests/*"
+            },
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
+            "preLaunchTask": "build:tests"
+        }
+    ]
+}

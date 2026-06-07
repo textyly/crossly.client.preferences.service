@@ -1,0 +1,9 @@
+# Build output
+/dist/
+/dist-tests/
+
+# Node.js dependencies
+/node_modules/
+
+# Claude context files
+CLAUDE.md
