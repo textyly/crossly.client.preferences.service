@@ -12,7 +12,7 @@
             "args": [
                 "--timeout",
                 "30000",
-                "${workspaceFolder}/dist-tests/${relativeFileDirname}/${fileBasenameNoExtension}.js"
+                "${workspaceFolder}/dist-tests/**/${fileBasenameNoExtension}.js"
             ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
@@ -36,7 +36,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug All Unit Tests",
+            "name": "Debug All Tests",
             "program": "${workspaceFolder}/node_modules/mocha/bin/mocha.js",
             "runtimeArgs": [
                 "--enable-source-maps"
@@ -44,7 +44,7 @@
             "args": [
                 "--timeout",
                 "30000",
-                "${workspaceFolder}/dist-tests/tests/unit/**/*.test.js"
+                "${workspaceFolder}/dist-tests/tests/**/*.test.js"
             ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",

@@ -11,7 +11,8 @@
     "esModuleInterop": true
   },
   "include": [
-    "tests/unit/**/*"
+    "tests/unit/**/*",
+    "tests/integration/**/*"
   ],
   "exclude": [
     "node_modules",
