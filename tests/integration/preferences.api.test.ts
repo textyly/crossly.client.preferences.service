@@ -4,7 +4,7 @@ import type {
     ClientPreferences,
     EditClientPreferencesRequest,
     SaveClientPreferencesRequest,
-} from 'crossly.client.preferences.contracts';
+} from '@textyly/crossly-client-preferences-contracts';
 import { createApp } from '../../src/createApp.js';
 import { InMemoryPreferencesRepository } from '../../src/repository/preferencesRepository.js';
 

@@ -3,7 +3,7 @@ import type {
     EditClientPreferencesRequest,
     SaveClientPreferencesRequest,
     Theme,
-} from 'crossly.client.preferences.contracts';
+} from '@textyly/crossly-client-preferences-contracts';
 import type { IPreferencesManager } from './types.js';
 import type { IPreferencesRepository } from '../repository/types.js';
 

@@ -22,7 +22,7 @@
   "author": "textyly community",
   "license": "Apache-2.0",
   "dependencies": {
-    "crossly.client.preferences.contracts": "file:contracts",
+    "@textyly/crossly-client-preferences-contracts": "file:contracts",
     "express": "^4.19.2",
     "mongodb": "^7.2.0"
   },

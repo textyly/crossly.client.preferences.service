@@ -1,5 +1,5 @@
 {
-  "name": "crossly.client.preferences.contracts",
+  "name": "@textyly/crossly-client-preferences-contracts",
   "version": "0.0.1",
   "description": "Shared contracts (types/DTOs) for the Crossly Client Preferences service, consumable by clients such as crossly.ui.",
   "type": "module",
@@ -14,10 +14,30 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "compile": "tsc --version && tsc",
-    "build": "npm i && npm run compile"
+    "build": "npm i && npm run compile",
+    "prepublishOnly": "npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/textyly/crossly.client.preferences.service.git",
+    "directory": "contracts"
+  },
+  "homepage": "https://github.com/textyly/crossly.client.preferences.service/tree/main/contracts#readme",
+  "bugs": {
+    "url": "https://github.com/textyly/crossly.client.preferences.service/issues"
+  },
+  "keywords": [
+    "crossly",
+    "textyly",
+    "contracts",
+    "embroidery",
+    "cross-stitch"
+  ],
   "author": "textyly community",
   "license": "Apache-2.0",
   "devDependencies": {

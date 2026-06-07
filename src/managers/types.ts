@@ -2,7 +2,7 @@ import type {
     ClientPreferences,
     SaveClientPreferencesRequest,
     EditClientPreferencesRequest,
-} from 'crossly.client.preferences.contracts';
+} from '@textyly/crossly-client-preferences-contracts';
 
 /**
  * Business operations for client preferences. Sits between the controllers

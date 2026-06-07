@@ -1,4 +1,4 @@
-import type { ClientPreferences } from 'crossly.client.preferences.contracts';
+import type { ClientPreferences } from '@textyly/crossly-client-preferences-contracts';
 
 /**
  * Persistence boundary for client preferences.
