@@ -12,7 +12,8 @@
         "**/LICENSE": true,
         "**/README*": true,
         "**/*.js": true,
-        "**/*.js.map": true
+        "**/*.js.map": true,
+        "**/*.log": true
     },
     "typescript.preferences.importModuleSpecifierEnding": "js",
     "editor.formatOnSave": true,

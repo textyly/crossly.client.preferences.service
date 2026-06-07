@@ -4,9 +4,10 @@ import type { IPreferencesRepository } from './types.js';
 /**
  * In-memory implementation of {@link IPreferencesRepository}.
  *
- * State lives in a plain Map and is lost on restart — intended as a placeholder
- * until a durable store (e.g. MongoDB/Redis) is introduced. Values are cloned on
- * the way in and out so callers cannot mutate stored state by reference.
+ * State lives in a plain Map and is lost on restart. Used by the unit tests and
+ * for running locally without a database; {@link MongoPreferencesRepository} is
+ * the durable implementation wired into the service at runtime. Values are cloned
+ * on the way in and out so callers cannot mutate stored state by reference.
  */
 export class InMemoryPreferencesRepository implements IPreferencesRepository {
     private readonly store: Map<string, ClientPreferences> = new Map();
