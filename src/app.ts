@@ -6,6 +6,7 @@ const port = 3000;
 app.use(express.json());
 
 app.get('/health', (req: Request, res: Response) => {
+    // local manual test
     res.json({ status: 'ok' });
 });
 
