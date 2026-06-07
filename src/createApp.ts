@@ -1,4 +1,5 @@
 import express, { type Express, type Request, type Response } from 'express';
+import cors from 'cors';
 import { PreferencesController } from './controllers/preferencesController.js';
 import { PreferencesManager } from './managers/preferencesManager.js';
 import type { IPreferencesRepository } from './repository/types.js';
@@ -14,6 +15,7 @@ import type { IPreferencesRepository } from './repository/types.js';
 export function createApp(repository: IPreferencesRepository): Express {
     const app = express();
 
+    app.use(cors());
     app.use(express.json());
 
     app.get('/health', (_req: Request, res: Response) => {
