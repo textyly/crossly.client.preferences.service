@@ -1,6 +1,6 @@
 {
   "name": "@textyly/crossly-client-preferences-contracts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Shared contracts (types/DTOs) for the Crossly Client Preferences service, consumable by clients such as crossly.ui.",
   "type": "module",
   "main": "./dist/index.js",
