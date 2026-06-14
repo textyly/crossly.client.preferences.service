@@ -14,8 +14,8 @@ import { InMemoryPreferencesRepository } from '../../src/repository/preferencesR
 // minted with the shared dev secret — exactly what the auth service issues.
 const secret = new TextEncoder().encode('dev-only-insecure-secret-change-me');
 
-async function sessionCookie(clientId: string, guest = false): Promise<string> {
-    const token = await new SignJWT({ guest })
+async function sessionCookie(clientId: string): Promise<string> {
+    const token = await new SignJWT()
         .setProtectedHeader({ alg: 'HS256' })
         .setSubject(clientId)
         .setIssuedAt()
