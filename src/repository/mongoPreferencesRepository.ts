@@ -72,6 +72,11 @@ export class MongoPreferencesRepository implements IPreferencesRepository {
         return document ? this.toDomain(document) : undefined;
     }
 
+    public async delete(clientId: string): Promise<boolean> {
+        const result = await this.collection.deleteOne({ _id: clientId });
+        return result.deletedCount === 1;
+    }
+
     private toDocument(preferences: ClientPreferences): PreferencesDocument {
         return {
             _id: preferences.clientId,

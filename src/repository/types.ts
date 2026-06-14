@@ -17,4 +17,7 @@ export interface IPreferencesRepository {
 
     /** Apply a partial change to an existing client's preferences. */
     edit(clientId: string, changes: Partial<ClientPreferences>): Promise<ClientPreferences | undefined>;
+
+    /** Delete a client's stored preferences. Returns true if a record was removed. */
+    delete(clientId: string): Promise<boolean>;
 }

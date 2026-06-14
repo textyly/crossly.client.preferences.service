@@ -40,4 +40,8 @@ export class InMemoryPreferencesRepository implements IPreferencesRepository {
         this.store.set(clientId, updated);
         return { ...updated };
     }
+
+    public async delete(clientId: string): Promise<boolean> {
+        return this.store.delete(clientId);
+    }
 }

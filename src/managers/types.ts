@@ -17,4 +17,7 @@ export interface IPreferencesManager {
      * the fields it provides; unspecified fields are preserved.
      */
     save(clientId: string, request: SaveClientPreferencesRequest): Promise<ClientPreferences>;
+
+    /** Reset the client's preferences to defaults (delete the stored record). */
+    reset(clientId: string): Promise<void>;
 }

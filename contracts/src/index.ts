@@ -31,6 +31,3 @@ export interface SaveClientPreferencesRequest {
     language?: string;
     settings?: Record<string, unknown>;
 }
-
-/** Shape returned by the API for a single set of preferences. */
-export type ClientPreferencesResponse = ClientPreferences;

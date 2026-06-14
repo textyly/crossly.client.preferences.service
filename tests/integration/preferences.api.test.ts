@@ -39,7 +39,7 @@ describe('preferences API (integration, cookie auth)', () => {
 
     it('rejects /preferences with no session cookie (401)', async () => {
         expect((await request(app).get('/api/v1/preferences')).status).to.equal(401);
-        expect((await request(app).put('/api/v1/preferences').send({ theme: 'dark' })).status).to.equal(
+        expect((await request(app).patch('/api/v1/preferences').send({ theme: 'dark' })).status).to.equal(
             401,
         );
     });
@@ -55,7 +55,7 @@ describe('preferences API (integration, cookie auth)', () => {
         const cookie = await sessionCookie('user-1');
         const payload: SaveClientPreferencesRequest = { theme: 'dark', language: 'bg' };
 
-        const put = await request(app).put('/api/v1/preferences').set('Cookie', cookie).send(payload);
+        const put = await request(app).patch('/api/v1/preferences').set('Cookie', cookie).send(payload);
         expect(put.status).to.equal(200);
 
         const get = await request(app).get('/api/v1/preferences').set('Cookie', cookie);
@@ -76,12 +76,12 @@ describe('preferences API (integration, cookie auth)', () => {
     it('merges partial updates, preserving unspecified fields', async () => {
         const cookie = await sessionCookie('user-1');
         await request(app)
-            .put('/api/v1/preferences')
+            .patch('/api/v1/preferences')
             .set('Cookie', cookie)
             .send({ theme: 'dark', language: 'bg' });
 
         const response = await request(app)
-            .put('/api/v1/preferences')
+            .patch('/api/v1/preferences')
             .set('Cookie', cookie)
             .send({ theme: 'light' });
 
@@ -92,7 +92,7 @@ describe('preferences API (integration, cookie auth)', () => {
 
     it('scopes preferences to the caller (different cookie = different data)', async () => {
         await request(app)
-            .put('/api/v1/preferences')
+            .patch('/api/v1/preferences')
             .set('Cookie', await sessionCookie('user-1'))
             .send({ theme: 'dark' });
 
@@ -101,5 +101,20 @@ describe('preferences API (integration, cookie auth)', () => {
             .set('Cookie', await sessionCookie('user-2'));
 
         expect((other.body as ClientPreferences).theme).to.equal('system'); // defaults
+    });
+
+    it('DELETE resets preferences to defaults', async () => {
+        const cookie = await sessionCookie('user-1');
+        await request(app).patch('/api/v1/preferences').set('Cookie', cookie).send({ theme: 'dark' });
+
+        const deleted = await request(app).delete('/api/v1/preferences').set('Cookie', cookie);
+        expect(deleted.status).to.equal(204);
+
+        const after = await request(app).get('/api/v1/preferences').set('Cookie', cookie);
+        expect((after.body as ClientPreferences).theme).to.equal('system'); // back to defaults
+    });
+
+    it('rejects DELETE with no session cookie (401)', async () => {
+        expect((await request(app).delete('/api/v1/preferences')).status).to.equal(401);
     });
 });

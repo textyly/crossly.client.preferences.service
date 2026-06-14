@@ -59,4 +59,12 @@ describe('PreferencesManager', () => {
 
         expect(other.theme).to.equal('system'); // defaults, not user-1's
     });
+
+    it('reset deletes the stored record so get returns defaults again', async () => {
+        await manager.save('user-1', { theme: 'dark' });
+        expect((await manager.get('user-1')).theme).to.equal('dark');
+
+        await manager.reset('user-1');
+        expect((await manager.get('user-1')).theme).to.equal('system');
+    });
 });

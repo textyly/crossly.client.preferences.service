@@ -7,8 +7,9 @@ import type { IPreferencesManager } from '../managers/types.js';
  * clientId in the path or body — a client can only ever touch its own data.
  *
  * Mounted under `/preferences`:
- *   GET /preferences -> read the caller's preferences (defaults if none saved)
- *   PUT /preferences -> create/update the caller's preferences (partial)
+ *   GET    /preferences -> read the caller's preferences (defaults if none saved)
+ *   PATCH  /preferences -> partial update of the caller's preferences (merge)
+ *   DELETE /preferences -> reset the caller's preferences to defaults
  */
 export class PreferencesController {
     public readonly router: Router;
@@ -20,7 +21,8 @@ export class PreferencesController {
 
     private registerRoutes(): void {
         this.router.get('/', this.get);
-        this.router.put('/', this.save);
+        this.router.patch('/', this.save);
+        this.router.delete('/', this.reset);
     }
 
     private readonly get = async (req: Request, res: Response): Promise<void> => {
@@ -31,5 +33,10 @@ export class PreferencesController {
     private readonly save = async (req: Request, res: Response): Promise<void> => {
         const saved = await this.manager.save(req.clientId as string, req.body ?? {});
         res.json(saved);
+    };
+
+    private readonly reset = async (req: Request, res: Response): Promise<void> => {
+        await this.manager.reset(req.clientId as string);
+        res.status(204).end();
     };
 }

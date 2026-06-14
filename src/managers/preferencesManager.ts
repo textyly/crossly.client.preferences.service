@@ -39,6 +39,12 @@ export class PreferencesManager implements IPreferencesManager {
         return this.repository.save(updated);
     }
 
+    public async reset(clientId: string): Promise<void> {
+        // Deleting the record makes get() fall back to defaults. Idempotent: a
+        // no-op if nothing was stored.
+        await this.repository.delete(clientId);
+    }
+
     private defaults(clientId: string): ClientPreferences {
         return { clientId, theme: DEFAULT_THEME, language: DEFAULT_LANGUAGE, settings: {} };
     }
