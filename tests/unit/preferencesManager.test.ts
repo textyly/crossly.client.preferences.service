@@ -9,53 +9,54 @@ describe('PreferencesManager', () => {
         manager = new PreferencesManager(new InMemoryPreferencesRepository());
     });
 
-    it('applies default theme and language when omitted on save', async () => {
-        const saved = await manager.save({ clientId: 'user-1' });
+    it('returns defaults for a client with nothing saved', async () => {
+        const prefs = await manager.get('user-1');
 
-        expect(saved.theme).to.equal('system');
-        expect(saved.language).to.equal('en');
+        expect(prefs).to.deep.equal({
+            clientId: 'user-1',
+            theme: 'system',
+            language: 'en',
+            settings: {},
+        });
+    });
+
+    it('applies defaults for fields omitted on save', async () => {
+        const saved = await manager.save('user-1', {});
+
+        expect(saved).to.include({ clientId: 'user-1', theme: 'system', language: 'en' });
         expect(saved.settings).to.deep.equal({});
     });
 
     it('keeps caller-provided values on save', async () => {
-        const saved = await manager.save({ clientId: 'user-1', theme: 'dark', language: 'bg' });
+        const saved = await manager.save('user-1', { theme: 'dark', language: 'bg' });
 
         expect(saved.theme).to.equal('dark');
         expect(saved.language).to.equal('bg');
     });
 
-    it('reads a saved client by id', async () => {
-        await manager.save({ clientId: 'user-1', theme: 'dark' });
+    it('reads back what was saved', async () => {
+        await manager.save('user-1', { theme: 'dark' });
 
-        const found = await manager.getById('user-1');
+        const found = await manager.get('user-1');
 
-        expect(found?.clientId).to.equal('user-1');
+        expect(found.clientId).to.equal('user-1');
+        expect(found.theme).to.equal('dark');
     });
 
-    it('returns undefined for an unknown client', async () => {
-        expect(await manager.getById('missing')).to.equal(undefined);
+    it('merges partial updates, preserving unspecified fields', async () => {
+        await manager.save('user-1', { theme: 'dark', language: 'bg' });
+
+        const updated = await manager.save('user-1', { theme: 'light' });
+
+        expect(updated.theme).to.equal('light');
+        expect(updated.language).to.equal('bg'); // preserved
     });
 
-    it('lists all saved clients', async () => {
-        await manager.save({ clientId: 'user-1' });
-        await manager.save({ clientId: 'user-2' });
+    it('scopes preferences per client', async () => {
+        await manager.save('user-1', { theme: 'dark' });
 
-        const all = await manager.getAll();
+        const other = await manager.get('user-2');
 
-        expect(all).to.have.length(2);
-    });
-
-    it('edits an existing client', async () => {
-        await manager.save({ clientId: 'user-1', theme: 'dark' });
-
-        const updated = await manager.edit('user-1', { theme: 'light' });
-
-        expect(updated?.theme).to.equal('light');
-    });
-
-    it('returns undefined when editing an unknown client', async () => {
-        const updated = await manager.edit('missing', { theme: 'light' });
-
-        expect(updated).to.equal(undefined);
+        expect(other.theme).to.equal('system'); // defaults, not user-1's
     });
 });

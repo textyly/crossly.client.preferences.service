@@ -1,16 +1,20 @@
 import type {
     ClientPreferences,
     SaveClientPreferencesRequest,
-    EditClientPreferencesRequest,
 } from '@textyly/crossly-client-preferences-contracts';
 
 /**
- * Business operations for client preferences. Sits between the controllers
- * (HTTP) and the repository (persistence), applying defaults and rules.
+ * Business operations for a single client's preferences. Identity (clientId) is
+ * supplied by the caller (derived from the session cookie), never trusted from a
+ * request body.
  */
 export interface IPreferencesManager {
-    save(request: SaveClientPreferencesRequest): Promise<ClientPreferences>;
-    getById(clientId: string): Promise<ClientPreferences | undefined>;
-    getAll(): Promise<ReadonlyArray<ClientPreferences>>;
-    edit(clientId: string, request: EditClientPreferencesRequest): Promise<ClientPreferences | undefined>;
+    /** The client's saved preferences, or sensible defaults if none exist yet. */
+    get(clientId: string): Promise<ClientPreferences>;
+
+    /**
+     * Create or update the client's preferences. A partial request only changes
+     * the fields it provides; unspecified fields are preserved.
+     */
+    save(clientId: string, request: SaveClientPreferencesRequest): Promise<ClientPreferences>;
 }

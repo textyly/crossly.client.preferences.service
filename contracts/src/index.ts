@@ -21,16 +21,12 @@ export interface ClientPreferences {
     settings: Record<string, unknown>;
 }
 
-/** Payload to create/save a set of preferences. */
+/**
+ * Payload to create/update the caller's preferences. All fields optional — a
+ * partial update only changes what it provides. There is NO clientId: the server
+ * derives identity from the session cookie, so a client can only write its own.
+ */
 export interface SaveClientPreferencesRequest {
-    clientId: string;
-    theme?: Theme;
-    language?: string;
-    settings?: Record<string, unknown>;
-}
-
-/** Payload to edit an existing set of preferences (all fields optional). */
-export interface EditClientPreferencesRequest {
     theme?: Theme;
     language?: string;
     settings?: Record<string, unknown>;

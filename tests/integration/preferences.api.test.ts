@@ -1,92 +1,105 @@
 import { expect } from 'chai';
 import request from 'supertest';
+import { SignJWT } from 'jose';
 import type {
     ClientPreferences,
-    EditClientPreferencesRequest,
     SaveClientPreferencesRequest,
 } from '@textyly/crossly-client-preferences-contracts';
 import { createApp } from '../../src/createApp.js';
 import { InMemoryPreferencesRepository } from '../../src/repository/preferencesRepository.js';
 
-// Integration tests drive the full HTTP stack (controller -> manager -> repository)
-// through supertest, using the in-memory repository so no database is required.
-//
-// Request/response bodies are typed with the public `contracts` package — the same
-// types an external client (e.g. crossly.ui) consumes — so these tests exercise the
-// published contract rather than internal types. A breaking change to a contract DTO
-// breaks this test at compile time, which is intentional.
-describe('preferences API (integration)', () => {
+// Integration tests drive the full HTTP stack (requireClient -> controller ->
+// manager -> repository) through supertest, using the in-memory repository so no
+// database is required. Identity is asserted via a session cookie carrying a JWT
+// minted with the shared dev secret — exactly what the auth service issues.
+const secret = new TextEncoder().encode('dev-only-insecure-secret-change-me');
+
+async function sessionCookie(clientId: string, guest = false): Promise<string> {
+    const token = await new SignJWT({ guest })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setSubject(clientId)
+        .setIssuedAt()
+        .setExpirationTime('1h')
+        .sign(secret);
+    return `crossly_session=${token}`;
+}
+
+describe('preferences API (integration, cookie auth)', () => {
     let app: ReturnType<typeof createApp>;
 
     beforeEach(() => {
         app = createApp(new InMemoryPreferencesRepository());
     });
 
-    it('GET /health returns ok', async () => {
+    it('GET /health returns ok (no auth required)', async () => {
         const response = await request(app).get('/health');
-
         expect(response.status).to.equal(200);
         expect(response.body).to.deep.equal({ status: 'ok' });
     });
 
-    it('saves then reads back a client (POST then GET)', async () => {
-        const payload: SaveClientPreferencesRequest = { clientId: 'user-1', theme: 'dark', language: 'bg' };
+    it('rejects /preferences with no session cookie (401)', async () => {
+        expect((await request(app).get('/api/v1/preferences')).status).to.equal(401);
+        expect((await request(app).put('/api/v1/preferences').send({ theme: 'dark' })).status).to.equal(
+            401,
+        );
+    });
 
-        const created = await request(app).post('/preferences').send(payload);
-        expect(created.status).to.equal(201);
+    it('rejects an invalid/tampered session cookie (401)', async () => {
+        const response = await request(app)
+            .get('/api/v1/preferences')
+            .set('Cookie', 'crossly_session=not-a-jwt');
+        expect(response.status).to.equal(401);
+    });
 
-        const read = await request(app).get('/preferences/user-1');
-        expect(read.status).to.equal(200);
-        const body = read.body as ClientPreferences;
+    it("saves then reads back the caller's own preferences", async () => {
+        const cookie = await sessionCookie('user-1');
+        const payload: SaveClientPreferencesRequest = { theme: 'dark', language: 'bg' };
+
+        const put = await request(app).put('/api/v1/preferences').set('Cookie', cookie).send(payload);
+        expect(put.status).to.equal(200);
+
+        const get = await request(app).get('/api/v1/preferences').set('Cookie', cookie);
+        expect(get.status).to.equal(200);
+        const body = get.body as ClientPreferences;
         expect(body).to.include({ clientId: 'user-1', theme: 'dark', language: 'bg' });
     });
 
-    it('applies default theme and language on save', async () => {
-        const payload: SaveClientPreferencesRequest = { clientId: 'user-2' };
-
-        const response = await request(app).post('/preferences').send(payload);
-
-        expect(response.status).to.equal(201);
-        const body = response.body as ClientPreferences;
-        expect(body).to.include({ theme: 'system', language: 'en' });
-    });
-
-    it('edits an existing client (PUT)', async () => {
-        const create: SaveClientPreferencesRequest = { clientId: 'user-1', theme: 'dark' };
-        await request(app).post('/preferences').send(create);
-
-        const edit: EditClientPreferencesRequest = { theme: 'light' };
-        const response = await request(app).put('/preferences/user-1').send(edit);
+    it('returns defaults when nothing is saved', async () => {
+        const response = await request(app)
+            .get('/api/v1/preferences')
+            .set('Cookie', await sessionCookie('fresh-user'));
 
         expect(response.status).to.equal(200);
+        expect(response.body as ClientPreferences).to.include({ theme: 'system', language: 'en' });
+    });
+
+    it('merges partial updates, preserving unspecified fields', async () => {
+        const cookie = await sessionCookie('user-1');
+        await request(app)
+            .put('/api/v1/preferences')
+            .set('Cookie', cookie)
+            .send({ theme: 'dark', language: 'bg' });
+
+        const response = await request(app)
+            .put('/api/v1/preferences')
+            .set('Cookie', cookie)
+            .send({ theme: 'light' });
+
         const body = response.body as ClientPreferences;
         expect(body.theme).to.equal('light');
+        expect(body.language).to.equal('bg');
     });
 
-    it('lists all saved clients', async () => {
-        const first: SaveClientPreferencesRequest = { clientId: 'user-1' };
-        const second: SaveClientPreferencesRequest = { clientId: 'user-2' };
-        await request(app).post('/preferences').send(first);
-        await request(app).post('/preferences').send(second);
+    it('scopes preferences to the caller (different cookie = different data)', async () => {
+        await request(app)
+            .put('/api/v1/preferences')
+            .set('Cookie', await sessionCookie('user-1'))
+            .send({ theme: 'dark' });
 
-        const response = await request(app).get('/preferences');
+        const other = await request(app)
+            .get('/api/v1/preferences')
+            .set('Cookie', await sessionCookie('user-2'));
 
-        expect(response.status).to.equal(200);
-        const body = response.body as ClientPreferences[];
-        expect(body).to.have.length(2);
-    });
-
-    it('returns 400 when clientId is missing on save', async () => {
-        // Deliberately invalid against the contract (clientId is required), so this
-        // payload is intentionally not typed as SaveClientPreferencesRequest.
-        const response = await request(app).post('/preferences').send({ theme: 'dark' });
-
-        expect(response.status).to.equal(400);
-    });
-
-    it('returns 404 for an unknown client', async () => {
-        const response = await request(app).get('/preferences/missing');
-
-        expect(response.status).to.equal(404);
+        expect((other.body as ClientPreferences).theme).to.equal('system'); // defaults
     });
 });
